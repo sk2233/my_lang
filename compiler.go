@@ -489,7 +489,7 @@ var (
 		{TokenAdd, TokenSub},
 		{TokenGT, TokenLT, TokenGE, TokenLE},
 		{TokenEQ, TokenNE},
-		{TokenAnd}, // TODO 暂时没有考虑短路
+		{TokenAnd}, // 暂时没有考虑短路
 		{TokenOr},
 	}
 )
