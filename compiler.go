@@ -435,7 +435,7 @@ func (p *Parser) EndScope() {
 		return // 没有局部变量需要处理
 	}
 	for i := len(p.Locals) - 1; i >= 0; i-- {
-		if p.Locals[i].Depth < p.Depth {
+		if p.Locals[i].Depth <= p.Depth {
 			p.Locals = p.Locals[:i+1] // 该结束了 局部变量列表也要裁剪
 			return
 		} // 移除该范围的所有局部变量

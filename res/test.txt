@@ -2,8 +2,10 @@ var a=22;
 var c=33;
 {
     var a=33;
-    print(a*c);
+    print(a*(c+2));
 }
+
+
 
 class A{
     test(){
@@ -11,18 +13,28 @@ class A{
     }
 }
 
+func max(n1,n2){
+    if(n1>n2){
+        return n1;
+    }else{
+        return n2;
+    }
+}
+print(max(22,33));
+
 class B < A{
     test(){
         super.test();
         print("BBB");
+        print(this.name);
     }
-    init(){
+    init(name){
+        this.name=name;
         print("init");
-        print(this);
     }
 }
 
-var b=B();
+var b=B("LLLL");
 b.test();
 
 var num=22;
