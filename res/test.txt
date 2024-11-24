@@ -1,0 +1,37 @@
+var a=22;
+var c=33;
+{
+    var a=33;
+    print(a*c);
+}
+
+class A{
+    test(){
+        print("AAA");
+    }
+}
+
+class B < A{
+    test(){
+        super.test();
+        print("BBB");
+    }
+    init(){
+        print("init");
+        print(this);
+    }
+}
+
+var b=B();
+b.test();
+
+var num=22;
+if(num>33){
+    print(22);
+}else{
+    print(33);
+}
+
+for(var i=0;i<10;i=i+1){
+    print(i);
+}
