@@ -37,6 +37,9 @@ const (
 	OpThis
 	OpInherit
 	OpSuper
+	OpMarkBC // 标记 break 与 continue 的位置
+	OpBreak
+	OpContinue
 )
 
 type ValueType uint8
@@ -80,20 +83,22 @@ const (
 	TokenStr // "sdas"
 	TokenNum // 22.33
 	// 关键字
-	TokenAnd    // and
-	TokenOr     // or
-	TokenTrue   // true
-	TokenFalse  // false
-	TokenIf     // if
-	TokenElse   // else
-	TokenFor    // for
-	TokenWhile  // while
-	TokenThis   // this
-	TokenSuper  // super
-	TokenClass  // class
-	TokenFunc   // func
-	TokenVar    // var
-	TokenReturn // return
+	TokenAnd      // and
+	TokenOr       // or
+	TokenTrue     // true
+	TokenFalse    // false
+	TokenIf       // if
+	TokenElse     // else
+	TokenFor      // for
+	TokenWhile    // while
+	TokenBreak    // break
+	TokenContinue // continue
+	TokenThis     // this
+	TokenSuper    // super
+	TokenClass    // class
+	TokenFunc     // func
+	TokenVar      // var
+	TokenReturn   // return
 	//TokenPrint  // print
 	// 其他
 	TokenEOF // 文件结尾

@@ -101,7 +101,8 @@ func Interpret(chunk *Chunk) {
 	frames.Push(&CallFrame{})         // 压入默认函数
 	global := make(map[string]*Value) // 全局参数
 	RegisterNative(global)
-	var this *Value // bad impl
+	var this *Value             // bad impl
+	breakIp, continueIp := 0, 0 // bad impl
 	ip := 0
 
 	for ip < len(chunk.Data) {
@@ -275,6 +276,15 @@ func Interpret(chunk *Chunk) {
 			tar.Inst = src.Inst
 		case OpThis: // this 是关键字，实际就是一种特殊的字段获取
 			stack.Push(this)
+		case OpMarkBC:
+			continueIp = int(chunk.ReadIndex(ip))
+			ip += 8
+			breakIp = int(chunk.ReadIndex(ip))
+			ip += 8
+		case OpBreak: // 需要检验在 while 或 for 中
+			ip = breakIp
+		case OpContinue:
+			ip = continueIp
 		case OpSuper:
 			if this == nil {
 				panic(fmt.Sprintf("invalid use super"))

@@ -41,12 +41,14 @@ var (
 		"if":    TokenIf,
 		"or":    TokenOr,
 		//"print":  TokenPrint,
-		"return": TokenReturn,
-		"super":  TokenSuper,
-		"this":   TokenThis,
-		"true":   TokenTrue,
-		"var":    TokenVar,
-		"while":  TokenWhile,
+		"return":   TokenReturn,
+		"super":    TokenSuper,
+		"this":     TokenThis,
+		"true":     TokenTrue,
+		"var":      TokenVar,
+		"while":    TokenWhile,
+		"break":    TokenBreak,
+		"continue": TokenContinue,
 	}
 )
 
@@ -340,6 +342,10 @@ func (p *Parser) Statement() {
 		p.ReturnStatement()
 	} else if p.Match(TokenFor) {
 		p.ForStatement()
+	} else if p.Match(TokenBreak) {
+		p.BreakStatement()
+	} else if p.Match(TokenContinue) {
+		p.ContinueStatement()
 	} else if p.Match(TokenLBrace) {
 		p.BeginScope()
 		p.Block()
@@ -347,6 +353,16 @@ func (p *Parser) Statement() {
 	} else {
 		p.ExpressionStatement()
 	}
+}
+
+func (p *Parser) ContinueStatement() {
+	token := p.Must(TokenSemi)
+	p.Chunk.WriteOpCode(OpContinue, token.Line)
+}
+
+func (p *Parser) BreakStatement() {
+	token := p.Must(TokenSemi)
+	p.Chunk.WriteOpCode(OpBreak, token.Line)
 }
 
 func (p *Parser) ReturnStatement() {
@@ -360,8 +376,9 @@ func (p *Parser) ReturnStatement() {
 }
 
 func (p *Parser) ForStatement() {
-	p.Must(TokenLParen)
-	if p.Match(TokenVar) { // 初始化语句
+	token := p.Must(TokenLParen)
+	cOffset, bOffset := p.MakeMarkBC(token.Line) // 保存，回填 continue break 地址
+	if p.Match(TokenVar) {                       // 初始化语句
 		p.VarDeclaration()
 	} else {
 		p.Must(TokenSemi)
@@ -370,34 +387,39 @@ func (p *Parser) ForStatement() {
 	condOffset := -1
 	if !p.Match(TokenSemi) { // 有条件
 		p.Expression()
-		condOffset = p.MakeJump(OpFJump, 0)
+		condOffset = p.MakeJump(OpFJump, token.Line)
 		p.Must(TokenSemi)
 	}
-	bodyOffset := p.MakeJump(OpJump, 0)
+	bodyOffset := p.MakeJump(OpJump, token.Line)
 	changeIp := len(p.Chunk.Data)
+	p.Chunk.SetIndex(cOffset, uint64(changeIp))
 	if !p.Match(TokenRParen) { // 有变化
 		p.Expression()
-		p.Chunk.WriteOpCode(OpPop, 0) // 抛弃其返回值 只是需要Expression的副作用
+		p.Chunk.WriteOpCode(OpPop, token.Line) // 抛弃其返回值 只是需要Expression的副作用
 		p.Must(TokenRParen)
 	}
-	p.MakeDirectJump(OpJump, startIp, 0)
+	p.MakeDirectJump(OpJump, startIp, token.Line)
 	p.Chunk.SetIndex(bodyOffset, uint64(len(p.Chunk.Data)))
 	p.Statement()
-	p.MakeDirectJump(OpJump, changeIp, 0)
+	p.MakeDirectJump(OpJump, changeIp, token.Line)
 	if condOffset >= 0 { // 有跳出条件
 		p.Chunk.SetIndex(condOffset, uint64(len(p.Chunk.Data)))
 	}
+	p.Chunk.SetIndex(bOffset, uint64(len(p.Chunk.Data)))
 }
 
 func (p *Parser) WhileStatement() {
-	p.Must(TokenLParen)
+	token := p.Must(TokenLParen)
+	cOffset, bOffset := p.MakeMarkBC(token.Line) // 保存，回填 continue break 地址
 	startIp := len(p.Chunk.Data)
+	p.Chunk.SetIndex(cOffset, uint64(startIp))
 	p.Expression()
-	token := p.Must(TokenRParen)
+	token = p.Must(TokenRParen)
 	exitOffset := p.MakeJump(OpFJump, token.Line)
 	p.Statement()
 	p.MakeDirectJump(OpJump, startIp, 0) // 不停跳回判断条件
 	p.Chunk.SetIndex(exitOffset, uint64(len(p.Chunk.Data)))
+	p.Chunk.SetIndex(bOffset, uint64(len(p.Chunk.Data)))
 }
 
 func (p *Parser) MakeDirectJump(code OpCode, ip int, line int) {
@@ -423,6 +445,13 @@ func (p *Parser) MakeJump(code OpCode, line int) int {
 	p.Chunk.WriteOpCode(code, line)
 	p.Chunk.WriteIndex(0) // 预先使用 0 占位 并返回其地址
 	return len(p.Chunk.Data) - 8
+}
+
+func (p *Parser) MakeMarkBC(line int) (int, int) {
+	p.Chunk.WriteOpCode(OpMarkBC, line)
+	p.Chunk.WriteIndex(0)
+	p.Chunk.WriteIndex(0)
+	return len(p.Chunk.Data) - 16, len(p.Chunk.Data) - 8
 }
 
 func (p *Parser) BeginScope() {

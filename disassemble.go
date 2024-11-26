@@ -36,6 +36,8 @@ func DisassembleInstruction(chunk *Chunk, offset int) int {
 		return IndexInstruction("OP_LSET", chunk, offset)
 	case OpFJump:
 		return IndexInstruction("OP_FJUMP", chunk, offset)
+	case OpMarkBC:
+		return MarkBCInstruction("OP_MARKBC", chunk, offset)
 	case OpJump:
 		return IndexInstruction("OP_JUMP", chunk, offset)
 	case OpCall:
@@ -72,6 +74,10 @@ func DisassembleInstruction(chunk *Chunk, offset int) int {
 		return SimpleInstruction("OP_THIS", offset)
 	case OpSuper:
 		return SimpleInstruction("OP_SUPER", offset)
+	case OpContinue:
+		return SimpleInstruction("OP_CONTINUE", offset)
+	case OpBreak:
+		return SimpleInstruction("OP_BREAK", offset)
 	case OpInherit:
 		return SimpleInstruction("OP_INHERIT", offset)
 	case OpEndFunc:
@@ -112,6 +118,13 @@ func IndexInstruction(name string, chunk *Chunk, offset int) int {
 	index := chunk.ReadIndex(offset + 1)
 	fmt.Printf("%s %d\n", name, index) // 没有名称只能打出索引了 例如局部变量编译是不存储名称的
 	return offset + 1 + 8
+}
+
+func MarkBCInstruction(name string, chunk *Chunk, offset int) int {
+	cIndex := chunk.ReadIndex(offset + 1)
+	bIndex := chunk.ReadIndex(offset + 1 + 8)
+	fmt.Printf("%s %d %d\n", name, cIndex, bIndex)
+	return offset + 1 + 8 + 8
 }
 
 func SimpleInstruction(name string, offset int) int {
