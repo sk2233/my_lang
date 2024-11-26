@@ -53,7 +53,13 @@ if(num>33){
 }
 
 for(var i=0;i<10;i=i+1){
+    if(i<4){
+        continue;
+    }
     print(i);
+    if(i>7){
+        break;
+    }
 }
 ```
 ## 输出 case
@@ -165,25 +171,38 @@ for(var i=0;i<10;i=i+1){
 0553 0040 OP_CONSTANT 2 <num 33.000000>
 0562 0000 OP_CALL 1
 0564 0040 OP_POP
-0565 0043 OP_CONSTANT 6 <num 0.000000>
-0574 0043 OP_GDEFINE 21 <str "i">
-0583 0043 OP_GGET 21 <str "i">
-0592 0043 OP_CONSTANT 22 <num 10.000000>
-0601 0043 OP_LT
-0602 0000 OP_FJUMP 689
-0611 0000 OP_JUMP 659
-0620 0043 OP_GGET 21 <str "i">
-0629 0043 OP_GGET 21 <str "i">
-0638 0043 OP_CONSTANT 23 <num 1.000000>
-0647 0043 OP_ADD
-0648 0043 OP_SET
-0649 0000 OP_POP
-0650 0000 OP_JUMP 583
-0659 0044 OP_GGET 4 <str "print">
-0668 0044 OP_GGET 21 <str "i">
-0677 0000 OP_CALL 1
-0679 0044 OP_POP
-0680 0000 OP_JUMP 620
+0565 0043 OP_MARKBC 637 782
+0582 0043 OP_CONSTANT 6 <num 0.000000>
+0591 0043 OP_GDEFINE 21 <str "i">
+0600 0043 OP_GGET 21 <str "i">
+0609 0043 OP_CONSTANT 22 <num 10.000000>
+0618 0043 OP_LT
+0619 0043 OP_FJUMP 782
+0628 0043 OP_JUMP 676
+0637 0043 OP_GGET 21 <str "i">
+0646 0043 OP_GGET 21 <str "i">
+0655 0043 OP_CONSTANT 23 <num 1.000000>
+0664 0043 OP_ADD
+0665 0043 OP_SET
+0666 0043 OP_POP
+0667 0043 OP_JUMP 600
+0676 0044 OP_GGET 21 <str "i">
+0685 0044 OP_CONSTANT 24 <num 4.000000>
+0694 0044 OP_LT
+0695 0044 OP_FJUMP 714
+0704 0045 OP_CONTINUE
+0705 0000 OP_JUMP 714
+0714 0047 OP_GGET 4 <str "print">
+0723 0047 OP_GGET 21 <str "i">
+0732 0000 OP_CALL 1
+0734 0047 OP_POP
+0735 0048 OP_GGET 21 <str "i">
+0744 0048 OP_CONSTANT 25 <num 7.000000>
+0753 0048 OP_GT
+0754 0048 OP_FJUMP 773
+0763 0049 OP_BREAK
+0764 0000 OP_JUMP 773
+0773 0043 OP_JUMP 637
 =====================Interpret=====================
 sys-call <num 1155.000000>
 sys-call <num 33.000000>
@@ -192,16 +211,12 @@ sys-call <str "AAA">
 sys-call <str "BBB">
 sys-call <str "LLLL">
 sys-call <num 33.000000>
-sys-call <num 0.000000>
-sys-call <num 1.000000>
-sys-call <num 2.000000>
-sys-call <num 3.000000>
 sys-call <num 4.000000>
 sys-call <num 5.000000>
 sys-call <num 6.000000>
 sys-call <num 7.000000>
 sys-call <num 8.000000>
-sys-call <num 9.000000>
+stack size 0
 ```
 # 参考
 https://readonly.link/books/https://raw.githubusercontent.com/GuoYaxiang/craftinginterpreters_zh/main/book.json?front-matter=contents
